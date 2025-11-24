@@ -8,7 +8,7 @@ int picoshell(char **cmds[])
 	pid_t   pid;
 	int     fds[2];
 	int     status;
-	int     prev_fd		= -1;
+	int     prev_fd		= -1; // previous read fd (pipe read end -> fds[0])
 	int     exit_code 	= 0;
 	int     i 			= 0;
 
@@ -53,9 +53,10 @@ int picoshell(char **cmds[])
 		i++;
 	}
 
-	// Wait for all children
-	while (wait(&status) != -1)
+	while (wait(&status) != -1) // while there is a child
 	{
+		// WIFEXITED	- bool: terminated normally, used exit() or _exit()
+		// WEXITSTATUS	- int: returns exit status that was used to terminate program
 		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
 			exit_code = 1;
 	}
