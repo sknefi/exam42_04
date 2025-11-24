@@ -1,4 +1,4 @@
-// add includes, if u forgot use man in terminal (for example man dup2)
+// add includes, if u forgot use man in terminal (for example man wait)
 
 
 /**  === TESTING PART (to test your code before submitting it) === */
