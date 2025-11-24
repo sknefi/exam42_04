@@ -71,7 +71,7 @@ int ft_popen(const char *file, char *const argv[], char type)
 
 	if (!file || !argv || (type != 'w' && type != 'r'))
 		return (-1);
-	if ((pid = pipe(fds)) == -1)
+	if (pipe(fds) == -1)
 		return (-1);
 	pid = fork();
 	if (pid == -1)
