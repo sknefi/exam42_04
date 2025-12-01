@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <malloc.h> // change this to <stdlib.h>
+#include <stdlib.h> // change this to <stdlib.h>
 #include <ctype.h>
 
 typedef struct node {
@@ -12,8 +12,6 @@ typedef struct node {
     struct node *l;
     struct node *r;
 }   node;
-
-node *n(**s);
 
 node    *new_node(node n)
 {
@@ -62,14 +60,76 @@ int expect(char **s, char c)
     return (0);
 }
 
-//...
+node *parse_sum(char **s);
+
+node *parse_union(char **s)
+{
+	if (**s >= '0' && **s <= '9')
+	{
+		node n = {VAL, **s - '0', NULL, NULL};
+		(*s)++;
+		return new_node(n);
+	}
+	else if(accept(s, '('))
+	{
+		node *lhs = parse_sum(s);
+		if (!expect(s, ')'))
+		{
+			destroy_tree(lhs);
+			return NULL;
+		}
+		return lhs;
+	}
+	unexpected(**s);
+	return NULL;
+}
+
+node *parse_multi(char **s)
+{
+	node *lhs = parse_union(s);
+	if (!lhs) return NULL;
+
+	while(accept(s, '*'))
+	{
+		node *rhs = parse_union(s);
+		if (!rhs)
+		{
+			destroy_tree(lhs);
+			return NULL;
+		}
+		node n = {MULTI, 0, lhs, rhs};
+		lhs = new_node(n);
+	}
+	return lhs;
+}
+
+node *parse_sum(char **s)
+{
+	node *lhs = parse_multi(s);
+	if (!lhs) return NULL;
+
+	while (accept(s, '+'))
+	{
+		node *rhs = parse_multi(s);
+		if (!rhs)
+		{
+			destroy_tree(lhs);
+			return NULL;
+		}
+		node n = {ADD, 0, lhs, rhs};
+		lhs = new_node(n);
+	}
+	return lhs;
+}
 
 node    *parse_expr(char *s)
 {
-    //...
+    node *ret = parse_sum(&s);
+	if (!ret) return NULL;
 
     if (*s) 
     {
+		unexpected(*s);
         destroy_tree(ret);
         return (NULL);
     }

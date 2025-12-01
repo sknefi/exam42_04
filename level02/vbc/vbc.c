@@ -167,9 +167,9 @@ int check_balance(char *s)
     i = 0;
     while (s[i])
     {
-        if (s[i] == '(')
+        if (accept(s[i], '('))
             balance++;
-        else if (s[i] == ')')
+        else if (!expect(s[i], ')'))
         {
             balance--;
             if (balance < 0)
