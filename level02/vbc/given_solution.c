@@ -62,140 +62,19 @@ int expect(char **s, char c)
     return (0);
 }
 
-node    *parse_expr(char *s) // delete whole function
+node    *parse_expr(char *s)
 {
-    //...
+    // node *ret = parse_sum(&s);
+	// if (!ret) return NULL;
 
     if (*s) 
     {
+		// unexpected(*s);
         destroy_tree(ret);
         return (NULL);
     }
     return (ret);
 }
-
-/******************************************************************************
-ADD THESE FUNCTIONS BELOW
-******************************************************************************/
-
-/*
-int check_balance(char *s)
-{
-    int balance = 0;
-    while (*s)
-    {
-        if (*s == '(')
-            balance++;
-        else if (*s == ')')
-        {
-            balance--;
-            if (balance < 0)
-                return (-1);
-        }
-        s++;
-    }
-    return (balance);
-}
-*/
-
-/*
-node *parse_number_or_group(char **s)
-{
-    node *res;
-    node tmp;
-
-    res = NULL;
-
-    if (**s == '(')
-    {
-        (*s)++;
-        res = parse_addition(s);
-        if (!res || **s != ')')
-        {
-            destroy_tree(res);
-            unexpected(**s);
-            return (NULL);
-        }
-        (*s)++;
-        return (res);
-    }
-
-    if (isdigit(**s))
-    {
-        tmp.type = VAL;
-        tmp.val = **s - '0';
-        res = new_node(tmp);
-        (*s)++;
-        return (res);
-    }
-
-    unexpected(**s);
-    return (NULL);
-}
-*/
-
-/*
-node *parse_multiplication(char **s)
-{
-    node *left;
-    node *right;
-    node tmp;
-
-    left = parse_number_or_group(s);
-    if (!left)
-        return (NULL);
-
-    while (**s == '*')
-    {
-        (*s)++;
-        right = parse_number_or_group(s);
-        if (!right)
-        {
-            destroy_tree(left);
-            return (NULL);
-        }
-        tmp.type = MULTI;
-        tmp.l = left;
-        tmp.r = right;
-        left = new_node(tmp);
-    }
-    return (left);
-}
-*/
-
-/*
-node *parse_addition(char **s)
-{
-    node *left;
-    node *right;
-    node tmp;
-
-    left = parse_multiplication(s);
-    if (!left)
-        return (NULL);
-
-    while (**s == '+')
-    {
-        (*s)++;
-        right = parse_multiplication(s);
-        if (!right)
-        {
-            destroy_tree(left);
-            return (NULL);
-        }
-        tmp.type = ADD;
-        tmp.l = left;
-        tmp.r = right;
-        left = new_node(tmp);
-    }
-    return (left);
-}
-*/
-
-/******************************************************************************
-END OF FUNCTIONS YOU MUST ADD
-******************************************************************************/
-
 
 int eval_tree(node *tree)
 {
@@ -214,14 +93,7 @@ int main(int argc, char **argv)
 {
     if (argc != 2)
         return (1);
-
-    /*
-    if (check_balance(argv[1]) == -1)
-        return(printf("Unexpected token ')'"), 1);
-    */
-
-    node *tree = parse_expr(argv[1]); // node *tree = parse_addition(&argv[1]);
-
+    node *tree = parse_expr(argv[1]);
     if (!tree)
         return (1);
     printf("%d\n", eval_tree(tree));

@@ -1,16 +1,13 @@
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/wait.h>
 
-/**  === SUBJECT PART (to pass this subject this is enough) === */
-int picoshell(char **cmds[])
+int    picoshell(char **cmds[])
 {
-	pid_t   pid;
-	int     fds[2];
-	int     status;
-	int     prev_fd		= -1; // previous read fd (pipe read end -> fds[0])
-	int     exit_code 	= 0;
-	int     i 			= 0;
+	int		fds[2];
+	int		pid;
+	int		prev_fd = -1;
+	int		i = 0;
 
 	while (cmds[i])
 	{
@@ -20,47 +17,43 @@ int picoshell(char **cmds[])
 		pid = fork();
 		if (pid == 0) // child
 		{
-			// If not first command then read from prev pipe
+			// if not first cmd
 			if (prev_fd != -1)
 			{
-				if (dup2(prev_fd, STDIN_FILENO) == -1)
-					exit(1);
+				dup2(prev_fd, STDIN_FILENO);
 				close(prev_fd);
 			}
 
-			// If not last command then write to next pipe
+			// if not last cmd
 			if (cmds[i + 1])
 			{
 				close(fds[0]);
-				if (dup2(fds[1], STDOUT_FILENO) == -1)
-					exit(1);
+				dup2(fds[1], STDOUT_FILENO);
 				close(fds[1]);
 			}
-
-			execvp(cmds[i][0], cmds[i]); // this should exit with execution exit status
-			exit(1); // fallback - error cmd not found
+			execvp(cmds[i][0], cmds[i]);
+			exit(1); // fallback
 		}
-
-		// parent
+		// if not first cmd
 		if (prev_fd != -1)
 			close(prev_fd);
+
+		// if not last cmd
 		if (cmds[i + 1])
 		{
 			close(fds[1]);
 			prev_fd = fds[0];
 		}
-
 		i++;
 	}
 
-	while (wait(&status) != -1) // while there is a child
+	int		status;
+	int		exit_code = 0;
+	while (wait(&status) != -1)
 	{
-		// WIFEXITED	- bool: terminated normally, used exit() or _exit()
-		// WEXITSTATUS	- int: returns exit status that was used to terminate program
-		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		if (WIFEXITED(status) && WIFSIGNALED(status) != 0)
 			exit_code = 1;
 	}
-
 	return (exit_code);
 }
 

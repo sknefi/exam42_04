@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h> // ++++
 #include <ctype.h>
 
 typedef struct node {
@@ -12,8 +12,6 @@ typedef struct node {
     struct node *l;
     struct node *r;
 }   node;
-
-node *n(**s);
 
 node    *new_node(node n)
 {
@@ -41,12 +39,12 @@ void    unexpected(char c)
     if (c)
         printf("Unexpected token '%c'\n", c);
     else
-        printf("Unexpected end of file\n");
+        printf("Unexpected end of input\n"); // ++++
 }
 
 int accept(char **s, char c)
 {
-    if (**s)
+    if (**s == c) // ++++
     {
         (*s)++;
         return (1);
@@ -62,10 +60,76 @@ int expect(char **s, char c)
     return (0);
 }
 
+node	*parse_sum(char **s);
+node	*parse_multi(char **s);
+
+node	*parse_union(char **s)
+{
+	if (**s >= '0' && **s <= '9')
+	{
+		node	*n = new_node((node){VAL, **s- '0', NULL, NULL});
+		(*s)++;
+		return (n);
+	}
+	else if (accept(s, '('))
+	{
+		node	*lhs = parse_sum(s);
+		if (!expect(s, ')'))
+		{
+			destroy_tree(lhs);
+			return (NULL);
+		}
+		return (lhs);
+	}
+	unexpected(**s);
+	return (NULL);
+}
+
+node	*parse_multi(char **s)
+{
+	node	*lhs = parse_union(s);
+	if (!lhs)
+		return (NULL);
+	while (accept(s, '*'))
+	{
+		node	*rhs = parse_union(s);
+		if (!rhs)
+		{
+			destroy_tree(lhs);
+			return (NULL);
+		}
+		lhs = new_node((node){MULTI, 0, lhs, rhs});
+	}
+	return lhs;
+}
+
+node	*parse_sum(char **s)
+{
+	node	*lhs = parse_multi(s);
+	if (!lhs)
+		return (NULL);
+	while (accept(s, '+'))
+	{
+		node	*rhs = parse_multi(s);
+		if (!rhs)
+		{
+			destroy_tree(lhs);
+			return (NULL);
+		}
+		lhs = new_node((node){ADD,0, lhs, rhs});
+	}
+	return (lhs);
+}
+
 node    *parse_expr(char *s)
 {
+    node	*ret = parse_sum(&s);
+	if (!ret)
+		return (NULL);
+
     if (*s) 
     {
+		unexpected(*s);
         destroy_tree(ret);
         return (NULL);
     }
@@ -89,9 +153,7 @@ int main(int argc, char **argv)
 {
     if (argc != 2)
         return (1);
-
     node *tree = parse_expr(argv[1]);
-
     if (!tree)
         return (1);
     printf("%d\n", eval_tree(tree));

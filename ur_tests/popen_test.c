@@ -1,5 +1,6 @@
 // add includes, if u forgot use man in terminal (for example man wait)
-
+#include <stdio.h>
+#include <unistd.h>
 
 /**  === TESTING PART (to test your code before submitting it) === */
 #define BUFFER_SIZE 10
@@ -66,7 +67,7 @@ void	ft_putstr(char *str)
 int ft_popen(const char *file, char *const argv[], char type)
 {
 	// write ur popen logic here
-
+	
 }
 
 
